@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tool_use_dpo"
+version = "0.1.0"
+description = "Aligning LLMs to strictly adhere to API schemas using Direct Preference Optimization (IPO)"
+authors = [{name = "Research Engineer", email = "research@lab.ai"}]
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.2.0",
+    "numpy<2.0.0",
+    "transformers",
+    "datasets",
+    "accelerate",
+    "bitsandbytes",
+    "peft",
+    "trl>=0.18.0",
+    "pyyaml",
+    "tqdm",
+    "jsonschema",
+    "openai",
+    "python-dotenv",
+    "wandb",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "isort"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]

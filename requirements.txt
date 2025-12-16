@@ -1,0 +1,20 @@
+# Core ML
+torch>=2.2.0
+numpy<2.0.0
+transformers
+datasets
+accelerate
+bitsandbytes
+peft
+trl<0.9.0
+
+# Unsloth (install separately with: make install-unsloth)
+# unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git
+
+# Utilities
+pyyaml
+tqdm
+jsonschema
+openai
+python-dotenv
+wandb

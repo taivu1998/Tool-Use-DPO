@@ -1,0 +1,95 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Testing/Linting cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# ML/DL Model files
+*.pt
+*.pth
+*.bin
+*.h5
+*.hdf5
+*.safetensors
+*.gguf
+*.onnx
+*.pkl
+*.pickle
+
+# HuggingFace cache
+.cache/
+*.lock
+
+# W&B and experiment tracking
+wandb/
+mlruns/
+lightning_logs/
+
+# Large data formats
+*.parquet
+*.arrow
+
+# Claude Code
+.claude/
+
+# Keep directory structure but ignore contents
+logs/*
+checkpoints/*
+data/*
+!logs/.gitkeep
+!checkpoints/.gitkeep
+!data/.gitkeep
+
+# Build artifacts
+build_repo.py
+gemini_output.txt

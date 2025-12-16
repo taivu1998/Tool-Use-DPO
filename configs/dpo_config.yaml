@@ -1,0 +1,15 @@
+# Point this to the output of SFT
+model_name: "checkpoints/sft_cold_start"
+data_path: "data/synthetic_triplets.jsonl"
+output_dir: "checkpoints/dpo_final"
+log_file: "logs/dpo_training.log"
+max_seq_length: 2048
+batch_size: 4              # L4 can handle 4 for DPO
+grad_accum_steps: 4        # Effective batch = 16
+learning_rate: 1.0e-6      # Slightly higher for better preference learning
+epochs: 3                  # 3 epochs for stronger preference alignment
+beta: 0.05                 # Lower beta = stronger preference signal
+loss_type: "ipo"           # IPO is more stable than standard DPO
+max_prompt_length: 768     # Increased to handle longer prompts with system message
+weight_decay: 0.01         # Light regularization
+seed: 42
