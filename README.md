@@ -90,7 +90,7 @@ We evaluated on **802 diverse tool-calling samples** using the Strict Schema Pas
 | Model | SSPR | Improvement |
 |:------|:----:|:-----------:|
 | **Baseline** (Qwen2.5-Coder-7B-Instruct) | 7.48% | - |
-| **DPO-Aligned** | **23.19%** | **+210%** |
+| **DPO-Aligned** | **23.19%** | **+15.71%** |
 
 **Key Improvements:**
 - **3.1x** higher pass rate
