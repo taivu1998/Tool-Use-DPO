@@ -1,4 +1,4 @@
-# Tool-Use DPO
+# Tool-Use DPO: Schema-Constrained Alignment via Identity Preference Optimization
 
 **Aligning LLMs to Strictly Adhere to API Schemas Using Direct Preference Optimization**
 
