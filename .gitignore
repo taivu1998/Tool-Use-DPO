@@ -94,3 +94,6 @@ data/*
 # Build artifacts
 build_repo.py
 gemini_output.txt
+
+# Local planning docs
+IMPROVEMENT_PLAN.md

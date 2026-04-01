@@ -1,10 +1,10 @@
-import os
 import glob
 import torch
-from unsloth import FastLanguageModel
 from trl import DPOTrainer, DPOConfig
+from _bootstrap import PROJECT_ROOT  # noqa: F401
 from src.dataset import load_dpo_dataset
 from src.config_parser import parse_args_with_config
+from src.model import load_model_and_tokenizer, prepare_model_for_training
 from src.utils import setup_logging, seed_everything
 
 def main():
@@ -13,27 +13,14 @@ def main():
     seed_everything(args.get("seed", 42))
 
     # Load the SFT Cold Start model
-    model, tokenizer = FastLanguageModel.from_pretrained(
+    model, tokenizer = load_model_and_tokenizer(
         model_name=args["model_name"],
         max_seq_length=args["max_seq_length"],
         load_in_4bit=True,
     )
 
-    # Fix tokenizer for Qwen/Unsloth/TRL compatibility
-    eos_token = "<|im_end|>"
-    eos_token_id = tokenizer.convert_tokens_to_ids(eos_token)
-    tokenizer.eos_token = eos_token
-    tokenizer.eos_token_id = eos_token_id
-    tokenizer.pad_token = eos_token
-    tokenizer.pad_token_id = eos_token_id
-    tokenizer.padding_side = "right"
-    model.config.eos_token_id = eos_token_id
-    model.config.pad_token_id = eos_token_id
-    model.generation_config.eos_token_id = eos_token_id
-    model.generation_config.pad_token_id = eos_token_id
-
     # Ensure training mode is set
-    FastLanguageModel.for_training(model)
+    prepare_model_for_training(model)
 
     dataset = load_dpo_dataset(args["data_path"], tokenizer)
 

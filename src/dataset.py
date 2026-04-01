@@ -1,58 +1,47 @@
 import json
-from datasets import Dataset
 import logging
+from typing import Any, Dict, List, Optional
 
-SYSTEM_PROMPT = """You are a tool-calling assistant. When given a user request and tool specification, respond with ONLY a valid JSON object representing the tool call. Do not include any explanation, markdown formatting, or code blocks. Output raw JSON only."""
+from datasets import Dataset
 
-def format_dpo_pair(example):
-    """
-    Formats the triplet for ChatML.
-    Qwen-2.5 expects specific chat templates.
-    """
-    # Include system prompt to constrain output format
-    prompt_text = f"<|im_start|>system\n{SYSTEM_PROMPT}<|im_end|>\n<|im_start|>user\n{example['prompt']}<|im_end|>\n<|im_start|>assistant\n"
+from src.prompts import append_assistant_end, format_dpo_prompt, format_sft_text
 
+
+def read_jsonl(data_path: str) -> List[Dict[str, Any]]:
+    """Read a JSONL file into memory."""
+    logging.info("Loading dataset from %s", data_path)
+    data: List[Dict[str, Any]] = []
+    with open(data_path, "r") as handle:
+        for line in handle:
+            if line.strip():
+                data.append(json.loads(line))
+    return data
+
+
+def format_dpo_pair(example: Dict[str, Any]) -> Dict[str, str]:
+    """Format a preference triplet using the shared ChatML prompt."""
     return {
-        "prompt": prompt_text,
-        "chosen": example["chosen"] + "<|im_end|>",
-        "rejected": example["rejected"] + "<|im_end|>"
+        "prompt": format_dpo_prompt(example["prompt"]),
+        "chosen": append_assistant_end(example["chosen"]),
+        "rejected": append_assistant_end(example["rejected"]),
     }
 
-def load_dpo_dataset(data_path: str, tokenizer=None):
-    """Loads JSONL data and prepares it for DPO training."""
-    logging.info(f"Loading dataset from {data_path}")
-    
-    data = []
-    with open(data_path, 'r') as f:
-        for line in f:
-            if line.strip():
-                data.append(json.loads(line))
-                
-    dataset = Dataset.from_list(data)
-    
-    # Map to ChatML format
-    dataset = dataset.map(format_dpo_pair)
-    
-    return dataset
 
-def load_sft_dataset(data_path: str, tokenizer):
+def load_dpo_dataset(data_path: str, tokenizer: Optional[Any] = None) -> Dataset:
+    """Load JSONL data and prepare it for DPO training."""
+    del tokenizer  # The signature is kept for backward compatibility.
+    dataset = Dataset.from_list(read_jsonl(data_path))
+    return dataset.map(format_dpo_pair)
+
+
+def load_sft_dataset(data_path: str, tokenizer: Optional[Any] = None) -> Dataset:
     """
-    Loads JSONL data for SFT Cold Start.
-    Uses only 'prompt' + 'chosen'.
+    Load JSONL data for SFT cold start using only ``prompt`` + ``chosen``.
     """
-    logging.info(f"Loading SFT dataset from {data_path}")
+    del tokenizer
 
-    def format_sft(example):
-        # Include system prompt to teach the model output format
-        text = f"<|im_start|>system\n{SYSTEM_PROMPT}<|im_end|>\n<|im_start|>user\n{example['prompt']}<|im_end|>\n<|im_start|>assistant\n{example['chosen']}<|im_end|>"
-        return {"text": text}
+    def format_sft(example: Dict[str, Any]) -> Dict[str, str]:
+        return {"text": format_sft_text(example["prompt"], example["chosen"])}
 
-    data = []
-    with open(data_path, 'r') as f:
-        for line in f:
-            if line.strip():
-                data.append(json.loads(line))
-                
-    dataset = Dataset.from_list(data)
-    dataset = dataset.map(format_sft)
-    return dataset
+    dataset = Dataset.from_list(read_jsonl(data_path))
+    return dataset.map(format_sft)

@@ -6,7 +6,7 @@ datasets
 accelerate
 bitsandbytes
 peft
-trl<0.9.0
+trl>=0.18.0,<1.0.0
 
 # Unsloth (install separately with: make install-unsloth)
 # unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git

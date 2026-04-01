@@ -16,7 +16,7 @@ dependencies = [
     "accelerate",
     "bitsandbytes",
     "peft",
-    "trl>=0.18.0",
+    "trl>=0.18.0,<1.0.0",
     "pyyaml",
     "tqdm",
     "jsonschema",

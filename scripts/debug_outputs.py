@@ -1,9 +1,10 @@
 """Debug script to examine actual model outputs"""
 import json
 import argparse
-from unsloth import FastLanguageModel
-
-SYSTEM_PROMPT = """You are a tool-calling assistant. When given a user request and tool specification, respond with ONLY a valid JSON object representing the tool call. Do not include any explanation, markdown formatting, or code blocks. Output raw JSON only."""
+from _bootstrap import PROJECT_ROOT  # noqa: F401
+from src.model import load_model_and_tokenizer, prepare_model_for_inference
+from src.prompts import build_chat_prompt
+from src.validation import validate_tool_call_detailed
 
 def main():
     parser = argparse.ArgumentParser()
@@ -13,12 +14,12 @@ def main():
     args = parser.parse_args()
 
     # Load model
-    model, tokenizer = FastLanguageModel.from_pretrained(
+    model, tokenizer = load_model_and_tokenizer(
         model_name=args.model_path,
         max_seq_length=2048,
         load_in_4bit=True,
     )
-    FastLanguageModel.for_inference(model)
+    prepare_model_for_inference(model)
 
     # Load data
     data = []
@@ -32,7 +33,7 @@ def main():
     print(f"{'='*60}\n")
 
     for i, item in enumerate(data[:args.num_samples]):
-        prompt = f"<|im_start|>system\n{SYSTEM_PROMPT}<|im_end|>\n<|im_start|>user\n{item['prompt']}<|im_end|>\n<|im_start|>assistant\n"
+        prompt = build_chat_prompt(item["prompt"])
 
         inputs = tokenizer([prompt], return_tensors="pt").to(model.device)
 
@@ -51,13 +52,11 @@ def main():
         print(f"PROMPT: {item['prompt'][:100]}...")
         print(f"EXPECTED: {item['chosen'][:150]}...")
         print(f"ACTUAL OUTPUT: [{response}]")
-
-        # Check if valid JSON
-        try:
-            json.loads(response)
-            print("STATUS: ✓ Valid JSON")
-        except json.JSONDecodeError as e:
-            print(f"STATUS: ✗ Invalid JSON - {e}")
+        result = validate_tool_call_detailed(response, item["schema"])
+        if result.is_valid:
+            print("STATUS: ✓ Strict-schema valid")
+        else:
+            print(f"STATUS: ✗ {result.error_type} - {result.message}")
         print()
 
 if __name__ == "__main__":

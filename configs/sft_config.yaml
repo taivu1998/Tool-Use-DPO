@@ -1,5 +1,5 @@
 model_name: "Qwen/Qwen2.5-Coder-7B-Instruct"
-data_path: "data/synthetic_triplets.jsonl"
+data_path: "data/train_triplets.jsonl"
 output_dir: "checkpoints/sft_cold_start"
 log_file: "logs/sft_training.log"
 max_seq_length: 2048

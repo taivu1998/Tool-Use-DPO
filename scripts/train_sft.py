@@ -1,7 +1,7 @@
-import os
 import torch
 from transformers import Trainer, TrainingArguments, DataCollatorForSeq2Seq
-from src.model import load_model_and_tokenizer, prepare_model_for_peft
+from _bootstrap import PROJECT_ROOT  # noqa: F401
+from src.model import load_model_and_tokenizer, prepare_model_for_peft, prepare_model_for_training
 from src.dataset import load_sft_dataset
 from src.config_parser import parse_args_with_config
 from src.utils import setup_logging, seed_everything
@@ -16,18 +16,8 @@ def main():
         max_seq_length=args["max_seq_length"]
     )
 
-    # Fix tokenizer for Qwen/Unsloth/TRL compatibility
-    eos_token = "<|im_end|>"
-    eos_token_id = tokenizer.convert_tokens_to_ids(eos_token)
-    tokenizer.eos_token = eos_token
-    tokenizer.eos_token_id = eos_token_id
-    tokenizer.pad_token = eos_token
-    tokenizer.pad_token_id = eos_token_id
-    tokenizer.padding_side = "right"
-    model.config.eos_token_id = eos_token_id
-    model.config.pad_token_id = eos_token_id
-
     model = prepare_model_for_peft(model)
+    model = prepare_model_for_training(model)
 
     dataset = load_sft_dataset(args["data_path"], tokenizer)
 
